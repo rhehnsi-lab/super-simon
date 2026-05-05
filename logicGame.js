@@ -7,7 +7,7 @@ function randomCell(){
         const randomIndex = Math.floor(Math.random() * 9)+1;
         sequence.push(randomIndex);
         console.log(`the cell random ${sequence[i]}`);
-    }
+};
 
 function checkEqual(cellId){
     userInput.push(cellId)
@@ -26,5 +26,15 @@ function checkEqual(cellId){
         randomCell();
     }
 };
+
+function lightCell(id){
+    const light=document.querySelector(`[data_id=${id}]`)
+    light.classList.add("active");
+       setTimeout(()=>{
+         light.classList.remove("active");
+       },500);
+       
+    
+}
 creatBoard();
 randomCell();
