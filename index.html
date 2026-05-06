@@ -11,16 +11,50 @@
 
 <body>
     <div id="home-screen" class="home-screen" style="display: none;">
-        <div class="home-card">
+        <div class="home-card home-record-card">
+            <div class="home-card-header">
+                <div>
+                    <span class="home-badge">🏠</span>
+                    <h2>מצב משחק</h2>
+                </div>
+                <button id="back-to-game" class="close-btn">חזרה למשחק</button>
+            </div>
 
-            <h2>🏠 מצב משחק</h2>
+            <p class="home-summary">כאן ניתן לראות את ההתקדמות שלך ברמות ואת מספר הקודים שנצברו בכל משחק.</p>
 
-            <p>שם שחקן: <span id="player-display"></span></p>
-            <p>שלב נוכחי: <span id="level-display"></span></p>
-            <p>ניקוד: <span id="score-display"></span></p>
+            <div class="home-stats">
+                <div class="home-stat-box">
+                    <span>שם שחקן</span>
+                    <strong id="player-display">-</strong>
+                </div>
+                <div class="home-stat-box">
+                    <span>שלב נוכחי</span>
+                    <strong id="level-display">0</strong>
+                </div>
+                <div class="home-stat-box">
+                    <span>קודים</span>
+                    <strong id="score-display">0</strong>
+                </div>
+                <div class="home-stat-box">
+                    <span>רשומה</span>
+                    <strong>Highscore</strong>
+                </div>
+            </div>
 
-            <button id="back-to-game">חזרה למשחק</button>
-
+            <div class="record-board">
+                <div class="record-row header">
+                    <span class="record-key">מדד</span>
+                    <span class="record-value">ערך</span>
+                </div>
+                <div class="record-row">
+                    <span class="record-key">שלב</span>
+                    <span class="record-value record-level">0</span>
+                </div>
+                <div class="record-row">
+                    <span class="record-key">קודים</span>
+                    <span class="record-value record-score">0</span>
+                </div>
+            </div>
         </div>
     </div>
     <div id="modal" class="modal-overlay">
