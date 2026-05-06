@@ -1,4 +1,6 @@
+// logicGame.js
 import { Timer } from "./taimer.js";
+import { playNote, notes } from "./sound.js"; // ייבוא הסאונד
 
 const maxStagePoints = 7;
 const baseTimer = 15;
@@ -49,7 +51,7 @@ function playSequence(onSequenceEnd) {
     sequence.forEach((id, index) => {
         setTimeout(() => {
             lightCell(id);
-        }, index * 700);
+        }, index * 800);
     });
     setTimeout(() => {
         isPlaying = false;
@@ -76,7 +78,7 @@ function handleTimeout() {
     countChances--;
     updateChances();
     if (countChances > 0) {
-        startGame();
+        setTimeout(startGame, 1000); // השהיה קלה לפני ניסיון חוזר
     }
 }
 
@@ -85,8 +87,12 @@ export function handleClick(cellId) {
 
     if (isPlaying) return;
 
+    // הפעלת סאונד בלחיצה
+    playNote(notes[cellId - 1]);
+
     userInput.push(cellId);
     const index = userInput.length - 1;
+
     if (sequence[index] !== userInput[index]) {
         console.log(error);
         showMessage(error);
@@ -94,7 +100,9 @@ export function handleClick(cellId) {
         userInput = [];
         countChances--;
         updateChances();
-        startGame();
+        if (countChances > 0) {
+            setTimeout(startGame, 1000);
+        }
         return;
     }
 
@@ -117,6 +125,10 @@ export function handleClick(cellId) {
 function lightCell(id) {
     const light = document.querySelector(`[data-id="${id}"]`);
     if (!light) return;
+
+    // הפעלת סאונד כשהתא נדלק אוטומטית
+    playNote(notes[id - 1]);
+
     light.classList.add("active");
     setTimeout(() => {
         light.classList.remove("active");
@@ -140,19 +152,33 @@ export function startGame() {
     updateStage();
     updateScore();
     updateChances();
-    randomCell();
-    playSequence(() => Timer(timer, handleTimeout));
+    showMessage("Get Ready...");
+
+    setTimeout(() => {
+        randomCell();
+        playSequence(() => Timer(timer, handleTimeout));
+    }, 1000);
 }
+
+// תיקון קליטת מקלדת
+document.addEventListener("keydown", (e) => {
+    const key = Number(e.key);
+    // וידוא שהמקש הוא מספר בין 1 ל-9
+    if (key >= 1 && key <= 9) {
+        const cell = document.querySelector(`[data-id="${key}"]`);
+        if (cell) {
+            cell.classList.add("pressed");
+            setTimeout(() => { cell.classList.remove("pressed"); }, 150);
+            handleClick(key);
+        }
+    }
+});
 
 function stopp() {
     const playing = document.getElementById("playing");
     if (!playing) return;
     playing.addEventListener("click", () => {
-        if (!isPlaying) {
-            isPlaying = true;
-        } else {
-            isPlaying = false;
-        }
+        isPlaying = !isPlaying; // החלפה פשוטה בין מצבים
     });
 }
 
