@@ -16,7 +16,10 @@ function pleySequence(){
         setTimeout(() => {
             lightCell(id);
         } ,index * 500);
-})};
+})
+setTimeout(()=>
+{isPlaying=false;},sequence.length*500);
+};
 
 export function handleClick(cellId){
     if(isPlaying)return;
