@@ -1,16 +1,42 @@
 import { Timer } from "./taimer.js";
 
+const maxStagePoints = 7;
+const baseTimer = 15;
+const baseChances = 3;
+const minTimer = 5;
+const minChances = 1;
+
 let sequence = [];
 let userInput = [];
-let countChances = 3;
-let level = 1;
+let countChances = baseChances;
+let stage = 1;
+let stagePoints = 0;
+let score = 0;
 let isPlaying = false;
-let timer = 15;
+let timer = baseTimer;
 
-document.addEventListener("keydown", (event) => {
-    const key = parseInt(event.key);
-    if (key >= 1 && key <= 9) handleClick(key);
-});
+function updateStage() {
+    const stageElement = document.getElementById("level");
+    const stageDisplay = document.getElementById("level-display");
+    if (stageElement) stageElement.innerText = stage;
+    if (stageDisplay) stageDisplay.innerText = stage;
+}
+
+function updateScore() {
+    const scoreElement = document.getElementById("score");
+    const scoreDisplay = document.getElementById("score-display");
+    if (scoreElement) scoreElement.innerText = score;
+    if (scoreDisplay) scoreDisplay.innerText = score;
+}
+
+function updateChances() {
+    const ch = document.getElementById("ch");
+    if (ch) ch.innerText = countChances;
+    if (countChances <= 0) {
+        showMessage("Game Over");
+        startGame();
+    }
+}
 
 function randomCell() {
     const randomIndex = Math.floor(Math.random() * 9) + 1;
@@ -29,6 +55,16 @@ function playSequence(onSequenceEnd) {
         isPlaying = false;
         if (typeof onSequenceEnd === "function") onSequenceEnd();
     }, sequence.length * 800);
+}
+
+function handleStageUpgrade() {
+    stage++;
+    stagePoints = 0;
+    timer = Math.max(minTimer, timer - 2);
+    countChances = Math.max(minChances, countChances - 1);
+    showMessage("Stage upgraded!");
+    updateStage();
+    updateChances();
 }
 
 function handleTimeout() {
@@ -61,12 +97,18 @@ export function handleClick(cellId) {
         startGame();
         return;
     }
+
     if (userInput.length === sequence.length) {
-        showMessage(cellId);
-        console.log("good");
+        showMessage("Correct!");
+        score++;
+        stagePoints++;
+        updateScore();
+
+        if (stagePoints >= maxStagePoints) {
+            handleStageUpgrade();
+        }
+
         userInput = [];
-        level++;
-        updateLevel();
         randomCell();
         playSequence(() => Timer(timer, handleTimeout));
     }
@@ -74,36 +116,29 @@ export function handleClick(cellId) {
 
 function lightCell(id) {
     const light = document.querySelector(`[data-id="${id}"]`);
+    if (!light) return;
     light.classList.add("active");
     setTimeout(() => {
         light.classList.remove("active");
     }, 500);
 }
 
-function updateChances() {
-    if (countChances <= 0) {
-        showMessage("Game Over");
-        startGame();
-    }
-    const ch = document.getElementById("ch");
-    ch.innerText = countChances;
-}
-
-function updateLevel() {
-    const levelElement = document.getElementById("level");
-    levelElement.innerText = level;
-}
-
 function showMessage(text) {
     const msg = document.querySelector(".message");
-    msg.innerText = text;
+    if (msg) msg.innerText = text;
 }
 
 export function startGame() {
     sequence = [];
     userInput = [];
-    level = 1;
-    updateLevel();
+    countChances = baseChances;
+    stage = 1;
+    stagePoints = 0;
+    score = 0;
+    timer = baseTimer;
+    isPlaying = false;
+    updateStage();
+    updateScore();
     updateChances();
     randomCell();
     playSequence(() => Timer(timer, handleTimeout));
@@ -111,6 +146,7 @@ export function startGame() {
 
 function stopp() {
     const playing = document.getElementById("playing");
+    if (!playing) return;
     playing.addEventListener("click", () => {
         if (!isPlaying) {
             isPlaying = true;
