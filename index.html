@@ -10,77 +10,90 @@
 </head>
 
 <body>
-<div id="modal" class="modal-overlay">
-  <div class="modal-box">
+    <div id="home-screen" class="home-screen" style="display: none;">
+        <div class="home-card">
 
-    <div class="simon-logo">
-      <div class="logo-center">
-        <span>SUPER</span>
-        <strong>SIMON</strong>
-      </div>
+            <h2>🏠 מצב משחק</h2>
+
+            <p>שם שחקן: <span id="player-display"></span></p>
+            <p>שלב נוכחי: <span id="level-display"></span></p>
+            <p>ניקוד: <span id="score-display"></span></p>
+
+            <button id="back-to-game">חזרה למשחק</button>
+
+        </div>
     </div>
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
 
-    <h2>ברוכים הבאים ל-SUPER SIMON!</h2>
-    <p class="modal-subtitle">
-      חזרו על הרצף הצבעוני, שלב אחר שלב, והגיעו הכי רחוק שאפשר!
-    </p>
+            <div class="simon-logo">
+                <div class="logo-center">
+                    <span>SUPER</span>
+                    <strong>SIMON</strong>
+                </div>
+            </div>
 
-    <section class="modal-section rules">
-      <h3>🎮 איך משחקים</h3>
+            <h2>ברוכים הבאים ל-SUPER SIMON!</h2>
+            <p class="modal-subtitle">
+                חזרו על הרצף הצבעוני, שלב אחר שלב, והגיעו הכי רחוק שאפשר!
+            </p>
 
-      <div class="rules-grid">
-        <div class="rule-card">
-          <div class="rule-icon yellow">▦</div>
-          <h4>צפו ברצף</h4>
-          <p>המשחק יציג לכם רצף של צבעים</p>
+            <section class="modal-section rules">
+                <h3>🎮 איך משחקים</h3>
+
+                <div class="rules-grid">
+                    <div class="rule-card">
+                        <div class="rule-icon yellow">▦</div>
+                        <h4>צפו ברצף</h4>
+                        <p>המשחק יציג לכם רצף של צבעים</p>
+                    </div>
+
+                    <div class="rule-card">
+                        <div class="rule-icon blue">☝</div>
+                        <h4>חזרו על הרצף</h4>
+                        <p>לחצו על הצבעים באותו סדר</p>
+                    </div>
+
+                    <div class="rule-card">
+                        <div class="rule-icon red">➤</div>
+                        <h4>קדמו שלבים</h4>
+                        <p>כל שלב מוסיף צבע נוסף לרצף</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="modal-section input-section">
+                <h3>👤 הכנס את שמך</h3>
+                <input id="player-name" type="text" placeholder="הקלד שם כאן...(שדה חובה*)" required />
+            </section>
+
+            <section class="modal-section mode-section">
+                <h3>⭐ בחר סוג משחק</h3>
+
+                <div class="mode-grid">
+                    <button class="mode-card" data-mode="classic">
+                        <strong>קלאסי</strong>
+                        <span>ללא הגבלת זמן</span>
+                    </button>
+
+                    <button class="mode-card active" data-mode="time">
+                        <strong>זמן</strong>
+                        <span>60 שניות</span>
+                    </button>
+
+                    <button class="mode-card" data-mode="challenge">
+                        <strong>אתגר</strong>
+                        <span>כמה רמות תצליח?</span>
+                    </button>
+                </div>
+            </section>
+
+            <button id="enter-btn" class="start-button">
+                התחל משחק
+            </button>
+
         </div>
-
-        <div class="rule-card">
-          <div class="rule-icon blue">☝</div>
-          <h4>חזרו על הרצף</h4>
-          <p>לחצו על הצבעים באותו סדר</p>
-        </div>
-
-        <div class="rule-card">
-          <div class="rule-icon red">➤</div>
-          <h4>קדמו שלבים</h4>
-          <p>כל שלב מוסיף צבע נוסף לרצף</p>
-        </div>
-      </div>
-    </section>
-
-    <section class="modal-section input-section">
-      <h3>👤 הכנס את שמך</h3>
-      <input id="player-name" type="text"   placeholder="הקלד שם כאן...(שדה חובה*)" required  />
-    </section>
-
-    <section class="modal-section mode-section">
-      <h3>⭐ בחר סוג משחק</h3>
-
-      <div class="mode-grid">
-        <button class="mode-card" data-mode="classic">
-          <strong>קלאסי</strong>
-          <span>ללא הגבלת זמן</span>
-        </button>
-
-        <button class="mode-card active" data-mode="time">
-          <strong>זמן</strong>
-          <span>60 שניות</span>
-        </button>
-
-        <button class="mode-card" data-mode="challenge">
-          <strong>אתגר</strong>
-          <span>כמה רמות תצליח?</span>
-        </button>
-      </div>
-    </section>
-
-    <button id="enter-btn" class="start-button">
-      התחל משחק
-    </button>
-
-  </div>
-</div>
+    </div>
 
     <div class="game-page">
 
@@ -90,6 +103,7 @@
             <div class="stats">
                 <div class="stat">⏱️ <span id="taimer"></span><small>זמן</small></div>
                 <div class="stat">🧠 <span id="level"></span><small>שלב</small></div>
+                <div class="stat">⭐ <span id="score"></span><small>קודים</small></div>
                 <div class="stat">🔁 <span id="ch"></span><small>ניסיונות</small></div>
             </div>
 
