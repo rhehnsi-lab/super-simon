@@ -1,0 +1,185 @@
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  direction: rtl;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 42px;
+  font-family: "Heebo", "Rubik", Arial, sans-serif;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255,255,255,.18), transparent 32%),
+    radial-gradient(circle at 28% 72%, rgba(255,255,255,.12), transparent 34%),
+    linear-gradient(90deg, rgba(54,210,61,.95) 0 50%, rgba(244,24,29,.97) 50%),
+    linear-gradient(90deg, rgba(255,226,20,.97) 0 50%, rgba(4,105,255,.97) 50%);
+  background-size: 100% 50%, 100% 50%, 100% 50%, 100% 50%;
+  background-position: top, bottom, top, bottom;
+  background-repeat: no-repeat;
+  overflow: hidden;
+}
+
+.modal-overlay::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(circle, rgba(255,255,255,.16) 1px, transparent 2px) 0 0 / 26px 26px,
+    radial-gradient(circle at center, transparent 28%, rgba(0,0,0,.32) 100%);
+  opacity: .55;
+  filter: blur(.5px);
+}
+
+.modal-box {
+  position: relative;
+  z-index: 1;
+  width: min(680px, 92vw);
+  padding: 32px 40px 36px;
+  border-radius: 34px;
+  text-align: center;
+  color: #ffe8e8;
+  border: 1px solid rgba(7, 6, 6, 0.22);
+  background:
+    linear-gradient(180deg, rgba(30,36,45,.76), rgba(5,9,15,.94)),
+    radial-gradient(circle at top, rgba(0, 0, 0, 0.18), transparent 44%);
+  backdrop-filter: blur(24px) saturate(150%);
+  box-shadow:
+    0 34px 90px rgba(0,0,0,.65),
+    inset 0 1px 1px rgba(255,255,255,.32),
+    inset 0 -26px 70px rgba(0,0,0,.45),
+    0 0 38px rgba(255,255,255,.16);
+}
+
+.modal-box::before {
+  content: "";
+  display: block;
+  width: 230px;
+  height: 230px;
+  margin: -18px auto 22px;
+  border-radius: 50%;
+  border: 9px solid #05070a;
+  background:
+    radial-gradient(circle at center, #0d1118 0 30%, transparent 31%),
+    conic-gradient(
+      from 0deg,
+      #ff343c 0 25%,
+      #086cff 25% 50%,
+      #ffd91d 50% 75%,
+      #5bea43 75% 100%
+    );
+  box-shadow:
+    0 16px 36px rgba(0,0,0,.65),
+    inset 0 0 18px rgba(255,255,255,.3);
+}
+
+.modal-box::after {
+  content: "SUPER\A SIMON";
+  white-space: pre;
+  position: absolute;
+  top: 80px;
+  left: 50%;
+  width: 94px;
+  height: 94px;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: radial-gradient(circle at top, #2f3540, #07090d 75%);
+  border: 4px solid rgba(0,0,0,.85);
+  font-weight: 900;
+  font-size: 28px;
+  line-height: .95;
+  letter-spacing: -1px;
+  color: #ffffff;
+  text-shadow: 0 3px 8px rgba(0,0,0,.8);
+}
+
+.modal-box h2 {
+  margin: 4px 0 12px;
+  font-size: 34px;
+  font-weight: 900;
+  color: #ffffff;
+  text-shadow: 0 3px 14px rgba(141, 136, 136, 0.65);
+}
+
+.modal-box p {
+  margin: 8px auto;
+  max-width: 560px;
+  color: rgba(248, 248, 248, 0.78);
+  font-size: 18px;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+#enter-btn {
+  width: 100%;
+  height: 72px;
+  margin-top: 26px;
+  border: 0;
+  border-radius: 999px;
+  cursor: pointer;
+  color: #ffffff;
+  font-size: 30px;
+  font-weight: 900;
+  background: linear-gradient(90deg, #31df22, #18c986 45%, #0575ff);
+  box-shadow:
+    0 16px 34px rgba(0,80,255,.45),
+    0 0 32px rgba(40,255,95,.42),
+    inset 0 2px 0 rgba(255,255,255,.35);
+  text-shadow: 0 3px 8px rgba(0,0,0,.38);
+  transition: transform .2s ease, filter .2s ease;
+}
+
+#enter-btn::before {
+  content: " ▶";
+  display: inline-grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  margin-left: 16px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #36dd45;
+  font-size: 18px;
+  vertical-align: middle;
+}
+
+#enter-btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.08);
+}
+
+@media (max-width: 720px) {
+  .modal-overlay {
+    padding: 22px;
+  }
+
+  .modal-box {
+    padding: 26px 20px 30px;
+  }
+
+  .modal-box::before {
+    width: 190px;
+    height: 190px;
+  }
+
+  .modal-box::after {
+    top: 72px;
+    width: 78px;
+    height: 78px;
+    font-size: 23px;
+  }
+
+  .modal-box h2 {
+    font-size: 28px;
+  }
+
+  .modal-box p {
+    font-size: 16px;
+  }
+
+  #enter-btn {
+    height: 64px;
+    font-size: 26px;
+  }
+}
