@@ -1,11 +1,16 @@
-let interval 
- export const taimer = (minit) => {
+let interval;
+export const Timer = (time, onExpire) => {
     clearInterval(interval);
-    let time=minit
-   interval= setInterval(()=>{
-  time--;
-  const mins=  document.getElementById("taimer")
-  mins.innerText=time
-  if(time<=0)
-    clearInterval(interval);
-},1000)}
+    let currentTime = time;
+    const mins = document.getElementById("taimer");
+    if (mins) mins.innerText = currentTime;
+
+    interval = setInterval(() => {
+        currentTime--;
+        if (mins) mins.innerText = currentTime;
+        if (currentTime <= 0) {
+            clearInterval(interval);
+            if (typeof onExpire === "function") onExpire();
+        }
+    }, 1000);
+};
