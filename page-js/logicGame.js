@@ -1,14 +1,14 @@
 // logicGame.js
 
-import { saveScore } from "./record.js";
-import { Timer } from "./taimer.js";
-import { playNote, notes } from "./sound.js"; // ייבוא הסאונד
+import { saveScore } from "../record.js";
+import { Timer } from "../taimer.js";
+import { playNote, notes } from "../sound.js"; // ייבוא הסאונד
 // --- הגדרות קבועות (חוקי המשחק) ---
-const gameStart={
-     sequence =[],          // הרצף שהמחשב בנה
-     userInput =[],        // מה שהשחקן לחץ בפועל
-     countChances = baseChances,
-     stage = 1,
+const gameStart = {
+    sequence =[],          // הרצף שהמחשב בנה
+    userInput =[],        // מה שהשחקן לחץ בפועל
+    countChances = baseChances,
+    stage = 1,
     stagePoints = 0,
     score = 0,
     timer = baseTimer,
@@ -29,31 +29,6 @@ let timer = baseTimer;
 
 // --- פונקציות עדכון ממשק (UI) ---
 // מעדכנות את המספרים שמופיעים לשחקן על המסך
-function updateStage() {
-    const stageElement = document.getElementById("level");
-    const stageDisplay = document.getElementById("level-display");
-    if (stageElement) stageElement.innerText = stage;
-    if (stageDisplay) stageDisplay.innerText = stage;
-}
-
-function updateScore() {
-    const scoreElement = document.getElementById("score");
-    const scoreDisplay = document.getElementById("score-display");
-    if (scoreElement) scoreElement.innerText = score;
-    if (scoreDisplay) scoreDisplay.innerText = score;
-}
-
-function updateChances() {
-    const ch = document.getElementById("ch");
-    if (ch) ch.innerText = countChances;
-
-    // בדיקה אם נגמרו החיים
-    if (countChances <= 0) {
-        saveScore(playerDisplay.innerText, score, stage); // שמירת הניקוד לפני הצגת המסך
-        showMessage("Game Over");
-        startGame(); // אתחול המשחק מחדש
-    }
-}
 
 // --- לוגיקת הרצף ---
 
@@ -99,10 +74,10 @@ function handleTimeout() {
     userInput = [];
     countChances--;
     updateChances();
-    if (countChances > 0) 
+    if (countChances > 0)
         saveScore(playerDisplay.innerText, score, stage); // שמירת הניקוד לפני אתחול מחדש
-        updateChances();
-    
+    updateChances();
+
 }
 
 // הפונקציה המרכזית: בדיקת כל לחיצה של המשתמש
@@ -166,8 +141,8 @@ function showMessage(text) {
 
 // אתחול המשחק מאפס
 export function startGame() {
- 
- Object.assign(gameStart); // איפוס כל המשתנים למצב ההתחלתי 
+
+    Object.assign(gameStart); // איפוס כל המשתנים למצב ההתחלתי 
     updateStage();
     updateScore();
     updateChances();
