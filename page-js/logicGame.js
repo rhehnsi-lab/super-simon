@@ -27,8 +27,6 @@ let score = 0;
 let isPlaying = false;      // חיווי האם המחשב "מדבר" כרגע
 let timer = baseTimer;
 
-// --- פונקציות עדכון ממשק (UI) ---
-// מעדכנות את המספרים שמופיעים לשחקן על המסך
 
 // --- לוגיקת הרצף ---
 
@@ -89,8 +87,9 @@ export function handleClick(cellId) {
     const index = userInput.length - 1;
 
     // בדיקה: האם הלחיצה הנוכחית טועה?
-    if (sequence[index] !== userInput[index]) {
-        showMessage("Wrong!");
+const isCorrect=userInput.every((id, i) => id === sequence[i]);
+    if (!isCorrect) {
+    showMessage("Wrong!");
         sequence = [];
         userInput = [];
         countChances--;
@@ -133,21 +132,15 @@ function lightCell(id) {
     }, 500);
 }
 
-// הצגת טקסט במרכז המסך
-function showMessage(text) {
-    const msg = document.querySelector(".message");
-    if (msg) msg.innerText = text;
-}
+
 
 // אתחול המשחק מאפס
 export function startGame() {
-
     Object.assign(gameStart); // איפוס כל המשתנים למצב ההתחלתי 
     updateStage();
     updateScore();
     updateChances();
     showMessage("Get Ready...");
-
     setTimeout(() => {
         randomCell();
         playSequence(() => Timer(timer, handleTimeout));
