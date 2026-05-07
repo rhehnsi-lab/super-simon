@@ -1,4 +1,4 @@
-import { createBoard } from "./Boad.js";
+import { createBoard } from "./Board.js";
 import { handleClick, startGame } from "./logicGame.js";
 
 createBoard(handleClick);
