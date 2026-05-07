@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>super</title>
+    <link rel="stylesheet" href="modal.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="home-screen" class="home-screen" style="display: none;">
+        <div class="home-card home-record-card">
+            <div class="home-card-header">
+                <div>
+                    <span class="home-badge">🏠</span>
+                    <h2>מצב משחק</h2>
+                </div>
+                <button id="back-to-game" class="close-btn">חזרה למשחק</button>
+            </div>
+
+            <p class="home-summary">כאן ניתן לראות את ההתקדמות שלך ברמות ואת מספר הקודים שנצברו בכל משחק.</p>
+
+            <div class="home-stats">
+                <div class="home-stat-box">
+                    <span>שם שחקן</span>
+                    <strong id="player-display">-</strong>
+                </div>
+                <div class="home-stat-box">
+                    <span>שלב נוכחי</span>
+                    <strong id="level-display">0</strong>
+                </div>
+                <div class="home-stat-box">
+                    <span>רשומה</span>
+                    <strong>Highscore</strong>
+                </div>
+            </div>
+
+            
+    <div id="modal" class="modal-overlay">
+        <div class="modal-box">
+
+            <div class="simon-logo">
+                <div class="logo-center">
+                    <span>SUPER</span>
+                    <strong>SIMON</strong>
+                </div>
+            </div>
+
+            <h2>ברוכים הבאים ל-SUPER SIMON!</h2>
+            <p class="modal-subtitle">
+                חזרו על הרצף הצבעוני, שלב אחר שלב, והגיעו הכי רחוק שאפשר!
+            </p>
+
+            <section class="modal-section rules">
+                <h3>🎮 איך משחקים</h3>
+
+                <div class="rules-grid">
+                    <div class="rule-card">
+                        <div class="rule-icon yellow">▦</div>
+                        <h4>צפו ברצף</h4>
+                        <p>המשחק יציג לכם רצף של צבעים</p>
+                    </div>
+
+                    <div class="rule-card">
+                        <div class="rule-icon blue">☝</div>
+                        <h4>חזרו על הרצף</h4>
+                        <p>לחצו על הצבעים באותו סדר</p>
+                    </div>
+
+                    <div class="rule-card">
+                        <div class="rule-icon red">➤</div>
+                        <h4>קדמו שלבים</h4>
+                        <p>כל שלב מוסיף צבע נוסף לרצף</p>
+                    </div>
+                </div>
+            </section>
+
+            <section class="modal-section input-section">
+                <h3>👤 הכנס את שמך</h3>
+                <input id="player-name" type="text" placeholder="הקלד שם כאן...(שדה חובה*)" required />
+            </section>
+
+            <section class="modal-section mode-section">
+                <h3>⭐  משחק לאלופים</h3>
+
+                <div class="mode-grid">
+                    <button class="mode-card" data-mode="classic">
+                        <span>משפר זיכרון שמיעתי 👂 </span>
+                    </button>
+
+                    <button class="mode-card active" data-mode="time">
+                        <span> ⏰ עמידה בלחץ זמן</span>
+                    </button>
+
+                    <button class="mode-card" data-mode="challenge">
+                      
+                        <span>🏆כמה רמות תצליח?</span>
+                    </button>
+                </div>
+            </section>
+
+            <button id="enter-btn" class="start-button">
+                התחל משחק
+            </button>
+
+        </div>
+    </div>
+
+  
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+
+</html>
