@@ -1,5 +1,6 @@
-import { createBoard } from "./Board.js";
+import { createBoard ,boardGame} from "./Board.js";
 import { handleClick, startGame } from "./logicGame.js";
+
 
 createBoard(handleClick);
 

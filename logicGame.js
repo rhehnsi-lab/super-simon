@@ -1,22 +1,34 @@
 // logicGame.js
+
+import { saveScore } from "./record.js";
 import { Timer } from "./taimer.js";
 import { playNote, notes } from "./sound.js"; // ייבוא הסאונד
+// --- הגדרות קבועות (חוקי המשחק) ---
+const gameStart={
+     sequence =[],          // הרצף שהמחשב בנה
+     userInput =[],        // מה שהשחקן לחץ בפועל
+     countChances = baseChances,
+     stage = 1,
+    stagePoints = 0,
+    score = 0,
+    timer = baseTimer,
+    isPlaying = false
+}
+const maxStagePoints = 7;   // כמה הצלחות צריך כדי לעבור שלב
+const baseTimer = 15;       // זמן התחלתי לכל סיבוב
+const baseChances = 3;     // כמות פסילות התחלתית
+const minTimer = 5;         // הגבול התחתון של הזמן (שלא יהיה קצר מדי)
+const minChances = 1;       // הגבול התחתון של הפסילות
 
-const maxStagePoints = 7;
-const baseTimer = 15;
-const baseChances = 3;
-const minTimer = 5;
-const minChances = 1;
+// --- משתני מצב (משתנים שמשתנים במהלך המשחק) ---
 
-let sequence = [];
-let userInput = [];
-let countChances = baseChances;
-let stage = 1;
 let stagePoints = 0;
 let score = 0;
-let isPlaying = false;
+let isPlaying = false;      // חיווי האם המחשב "מדבר" כרגע
 let timer = baseTimer;
 
+// --- פונקציות עדכון ממשק (UI) ---
+// מעדכנות את המספרים שמופיעים לשחקן על המסך
 function updateStage() {
     const stageElement = document.getElementById("level");
     const stageDisplay = document.getElementById("level-display");
@@ -34,68 +46,76 @@ function updateScore() {
 function updateChances() {
     const ch = document.getElementById("ch");
     if (ch) ch.innerText = countChances;
+
+    // בדיקה אם נגמרו החיים
     if (countChances <= 0) {
+        saveScore(playerDisplay.innerText, score, stage); // שמירת הניקוד לפני הצגת המסך
         showMessage("Game Over");
-        startGame();
+        startGame(); // אתחול המשחק מחדש
     }
 }
 
+// --- לוגיקת הרצף ---
+
+// הגרלת מספר בין 1 ל-9 והוספתו לסוף הרצף
 function randomCell() {
     const randomIndex = Math.floor(Math.random() * 9) + 1;
     sequence.push(randomIndex);
-    console.log(`the cell random ${randomIndex}`);
 }
 
+// מעבר על המערך והצגת כל תא בתורו עם השהיה
 function playSequence(onSequenceEnd) {
-    isPlaying = true;
+    isPlaying = true; // נועל לחיצות משתמש
     sequence.forEach((id, index) => {
         setTimeout(() => {
             lightCell(id);
-        }, index * 800);
+        }, index * 1000); // רווח של שנייה בין הבהוב להבהוב
     });
+
+    // פתיחת הנעילה בסיום כל ההבהובים
     setTimeout(() => {
         isPlaying = false;
         if (typeof onSequenceEnd === "function") onSequenceEnd();
-    }, sequence.length * 800);
+    }, sequence.length * 1000);
 }
 
+// --- טיפול באירועים ותוצאות ---
+
+// מה קורה כשעולים שלב: מקצרים זמן ומורידים אפשרות לפסילה (העלאת קושי)
 function handleStageUpgrade() {
     stage++;
     stagePoints = 0;
-    timer = Math.max(minTimer, timer - 2);
+    timer = Math.max(minTimer, timer - 5);
     countChances = Math.max(minChances, countChances - 1);
     showMessage("Stage upgraded!");
     updateStage();
     updateChances();
 }
 
+// מה קורה כשנגמר הזמן
 function handleTimeout() {
-    const error = "Time's up";
-    console.log(error);
-    showMessage(error);
+    showMessage("Time's up");
     sequence = [];
     userInput = [];
     countChances--;
     updateChances();
-    if (countChances > 0) {
-        setTimeout(startGame, 1000); // השהיה קלה לפני ניסיון חוזר
-    }
+    if (countChances > 0) 
+        saveScore(playerDisplay.innerText, score, stage); // שמירת הניקוד לפני אתחול מחדש
+        updateChances();
+    
 }
 
+// הפונקציה המרכזית: בדיקת כל לחיצה של המשתמש
 export function handleClick(cellId) {
-    const error = "error click";
+    if (isPlaying) return; // הגנה: לא מאפשר ללחוץ כשהמחשב מציג רצף
 
-    if (isPlaying) return;
-
-    // הפעלת סאונד בלחיצה
-    playNote(notes[cellId - 1]);
-
+    playNote(notes[cellId - 1]); // צליל ללחיצה
     userInput.push(cellId);
     const index = userInput.length - 1;
 
+    // בדיקה: האם הלחיצה הנוכחית טועה?
     if (sequence[index] !== userInput[index]) {
-        console.log(error);
-        showMessage(error);
+        showMessage("Wrong!");
         sequence = [];
         userInput = [];
         countChances--;
@@ -106,6 +126,7 @@ export function handleClick(cellId) {
         return;
     }
 
+    // בדיקה: האם השלמת את כל הרצף בהצלחה?
     if (userInput.length === sequence.length) {
         showMessage("Correct!");
         score++;
@@ -116,39 +137,37 @@ export function handleClick(cellId) {
             handleStageUpgrade();
         }
 
-        userInput = [];
-        randomCell();
+        userInput = []; // איפוס לקראת הסיבוב הבא
+        randomCell();   // הוספת צעד חדש לרצף
+        // הצגת הרצף החדש והפעלת טיימר בסיומו
         playSequence(() => Timer(timer, handleTimeout));
     }
 }
 
+// --- פונקציות עזר ויזואליות ---
+
+// הארת תא בלוח (הוספת מחלקת CSS והסרתה)
 function lightCell(id) {
     const light = document.querySelector(`[data-id="${id}"]`);
     if (!light) return;
 
-    // הפעלת סאונד כשהתא נדלק אוטומטית
-    playNote(notes[id - 1]);
-
+    playNote(notes[id - 1]); // צליל הבהוב אוטומטי
     light.classList.add("active");
     setTimeout(() => {
         light.classList.remove("active");
     }, 500);
 }
 
+// הצגת טקסט במרכז המסך
 function showMessage(text) {
     const msg = document.querySelector(".message");
     if (msg) msg.innerText = text;
 }
 
+// אתחול המשחק מאפס
 export function startGame() {
-    sequence = [];
-    userInput = [];
-    countChances = baseChances;
-    stage = 1;
-    stagePoints = 0;
-    score = 0;
-    timer = baseTimer;
-    isPlaying = false;
+ 
+ Object.assign(gameStart); // איפוס כל המשתנים למצב ההתחלתי 
     updateStage();
     updateScore();
     updateChances();
@@ -160,10 +179,10 @@ export function startGame() {
     }, 1000);
 }
 
-// תיקון קליטת מקלדת
+// --- מאזינים חיצוניים (מקלדת וכפתורי שליטה) ---
+
 document.addEventListener("keydown", (e) => {
     const key = Number(e.key);
-    // וידוא שהמקש הוא מספר בין 1 ל-9
     if (key >= 1 && key <= 9) {
         const cell = document.querySelector(`[data-id="${key}"]`);
         if (cell) {
@@ -178,7 +197,7 @@ function stopp() {
     const playing = document.getElementById("playing");
     if (!playing) return;
     playing.addEventListener("click", () => {
-        isPlaying = !isPlaying; // החלפה פשוטה בין מצבים
+        isPlaying = !isPlaying; // עצירה/המשך לוגי
     });
 }
 
