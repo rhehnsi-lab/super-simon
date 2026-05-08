@@ -1,173 +1,277 @@
-// logicGame.js
-import { updateStage, updateScore, updateChances, showMessage } from "./ui.js";
+// logicGame.js — גרסה נקייה ומתוקנת לחלוטין
+import { updateStage, updateScore, updateChances, showMessage, setGameState, playClickEffect } from "./ui.js";
 import { saveScore } from "./record.js";
-import { Timer } from "./taimer.js";
+import { Timer, stopTimer } from "./taimer.js";
 import { playNote, notes } from "./sound.js";
 
-// --- הגדרות קבועות (חוקי המשחק) ---
-const maxStagePoints = 7;
-const baseTimer = 15;
-const baseChances = 3;
-const minTimer = 5;
-const minChances = 1;
+// ─── קבועים ───────────────────────────────────────────────
+const MAX_STAGE_POINTS = 5;
+const BASE_CHANCES = 3;
+let SEQ_SPEED = 800;   // ms בין תאים בהצגת הרצף
+const CELL_LIT_MS = 400;   // כמה זמן תא "דולק"
+const MIN_TURN_TIME = 8;     // שניות מינימום לתור שחקן
+const MAX_TURN_TIME = 20;
 
-// --- אובייקט מצב המשחק ---
-const gameStart = {
+// ─── מצב המשחק ────────────────────────────────────────────
+const state = {
     sequence: [],
     userInput: [],
-    countChances: baseChances,
+    countChances: BASE_CHANCES,
     stage: 1,
     stagePoints: 0,
     score: 0,
-    timer: baseTimer,
-    isPlaying: false
+    isShowingSeq: false,   // המחשב מציג רצף כרגע
+    isPaused: false,
+    isGameOver: false,
+    roundToken: 0,       // מספר סיבוב — מונע פעולות מסיבובים ישנים
+    pendingIds: []       // setTimeout-ים שניתן לבטל
 };
 
-// --- פונקציות עדכון ממשק (UI) ---
-// --- לוגיקת הרצף ---
-function randomCell() {
-    const randomIndex = Math.floor(Math.random() * 9) + 1;
-    gameStart.sequence.push(randomIndex);
+setGameState(state);
+
+// ─── עזר: ניהול setTimeout-ים ────────────────────────────
+function later(fn, ms) {
+    const id = setTimeout(fn, ms);
+    state.pendingIds.push(id);
+    return id;
 }
 
-function playSequence(onSequenceEnd) {
-    gameStart.isPlaying = true;
-    gameStart.sequence.forEach((id, index) => {
-        setTimeout(() => {
-            lightCell(id);
-        }, index * 1000);
-    });
-
-    setTimeout(() => {
-        gameStart.isPlaying = false;
-        if (typeof onSequenceEnd === "function") onSequenceEnd();
-    }, gameStart.sequence.length * 1000);
+function cancelAll() {
+    state.pendingIds.forEach(clearTimeout);
+    state.pendingIds = [];
 }
 
-// --- טיפול באירועים ---
-function handleStageUpgrade() {
-    gameStart.stage++;
-    gameStart.stagePoints = 0;
-    gameStart.timer = Math.max(minTimer, gameStart.timer - 5);
-    gameStart.countChances = Math.max(minChances, gameStart.countChances - 1);
-    showMessage("Stage upgraded!");
-    updateStage();
-    updateChances();
-}
-
-function handleTimeout() {
-    showMessage("Time's up");
-    gameStart.sequence = [];
-    gameStart.userInput = [];
-    gameStart.countChances--;
-    updateChances();
-    if (gameStart.countChances > 0) {
-        setTimeout(startRound, 1000);
-    }
-}
-
-export function handleClick(cellId) {
-    if (gameStart.isPlaying) return;
-
-    playNote(notes[cellId - 1]);
-    gameStart.userInput.push(cellId);
-    const index = gameStart.userInput.length - 1;
-
-    const isCorrect = gameStart.userInput.every((id, i) => id === gameStart.sequence[i]);
-    if (!isCorrect) {
-        showMessage("Wrong!");
-        gameStart.sequence = [];
-        gameStart.userInput = [];
-        gameStart.countChances--;
-        updateChances();
-        if (gameStart.countChances > 0) {
-            setTimeout(startRound, 1000);
-        }
-        return;
-    }
-
-    if (gameStart.userInput.length === gameStart.sequence.length) {
-        showMessage("Correct!");
-        gameStart.score++;
-        gameStart.stagePoints++;
-        updateScore();
-
-        if (gameStart.stagePoints >= maxStagePoints) {
-            handleStageUpgrade();
-        }
-
-        gameStart.userInput = [];
-        randomCell();
-        playSequence(() => Timer(gameStart.timer, handleTimeout));
-    }
+// ─── עזר: לוח ────────────────────────────────────────────
+function clearBoard() {
+    document.querySelectorAll(".cell")
+        .forEach(c => c.classList.remove("active", "player-active", "pc-active"));
 }
 
 function lightCell(id) {
-    const light = document.querySelector(`[data-id="${id}"]`);
-    if (!light) return;
-
+    const cell = document.getElementById(`cell-${id}`);
+    if (!cell) return;
+    cell.classList.add("active");
     playNote(notes[id - 1]);
-    light.classList.add("active");
-    setTimeout(() => {
-        light.classList.remove("active");
-    }, 500);
+    setTimeout(() => cell.classList.remove("active"), CELL_LIT_MS);
 }
 
-function gameOver() {
-    const playerDisplay = document.getElementById("player-display");
-    const name = playerDisplay ? playerDisplay.innerText : "אנונימי";
-    saveScore(name, gameStart.score, gameStart.stage);
-    showMessage("Game Over");
-    window.location.href = `record.html?name=${name}&score=${gameStart.score}&stage=${gameStart.stage}`;
+// ─── חישוב זמן תור ───────────────────────────────────────
+function turnTime() {
+    return Math.min(MAX_TURN_TIME, Math.max(MIN_TURN_TIME, 6 + state.sequence.length * 2));
 }
 
-function startRound() {
-    randomCell();
-    playSequence(() => Timer(gameStart.timer, handleTimeout));
+// ─── הצגת רצף (תור מחשב) ─────────────────────────────────
+function showSequence() {
+    const token = state.roundToken;
+
+    stopTimer();
+    cancelAll();
+    clearBoard();
+
+    state.isShowingSeq = true;
+    state.userInput = [];
+
+    showMessage("צפה ברצף... 👀");
+
+    // תא ראשון מתחיל אחרי השהייה קטנה — לא ב-0ms
+    state.sequence.forEach((id, i) => {
+        later(() => {
+            if (token !== state.roundToken || state.isGameOver) return;
+            lightCell(id);
+        }, 500 + i * SEQ_SPEED);
+    });
+
+    // אחרי כל הרצף — עבור לתור שחקן
+    const afterSeq = 500 + state.sequence.length * SEQ_SPEED + 400;
+    later(() => {
+        if (token !== state.roundToken || state.isGameOver) return;
+        beginPlayerTurn(token);
+    }, afterSeq);
 }
 
+// ─── תחילת תור שחקן ──────────────────────────────────────
+function beginPlayerTurn(token) {
+    if (state.isGameOver || state.isPaused || token !== state.roundToken) return;
+
+    state.isShowingSeq = false;
+    state.userInput = [];
+
+    const t = turnTime();
+    showMessage(`תורך! יש לך ${t} שניות ⏱️`);
+
+    Timer(t, () => {
+        if (token !== state.roundToken || state.isShowingSeq) return;
+        onTimeout();
+    });
+}
+
+// ─── פג הזמן ─────────────────────────────────────────────
+function onTimeout() {
+    if (state.isGameOver || state.isPaused || state.isShowingSeq) return;
+    loseChance("נגמר הזמן! ⏰ ירד ניסיון");
+}
+
+// ─── ניסיון נכשל ─────────────────────────────────────────
+function loseChance(msg) {
+    stopTimer();
+    cancelAll();
+    clearBoard();
+
+    state.isShowingSeq = false;
+    state.userInput = [];
+    state.countChances -= 1;
+
+    updateChances();
+    showMessage(msg);
+
+    if (state.countChances <= 0) {
+        endGame();
+        return;
+    }
+
+    // רצף חדש קצר אחרי הפסד
+    later(() => freshRound(), 1800);
+}
+
+// ─── סיום משחק ───────────────────────────────────────────
+function endGame() {
+    if (state.isGameOver||state.stage===5) return;
+    state.isGameOver = true;
+
+    stopTimer();
+    cancelAll();
+    clearBoard();
+
+    saveScore(localStorage.getItem("currentPlayerName") || "אנונימי", state.score, state.stage);
+    showMessage("Game Over 💀");
+
+    setTimeout(() => { window.location.href = "record.html"; }, 1600);
+}
+
+// ─── סיבוב חדש (אחרי הפסד) ───────────────────────────────
+function freshRound() {
+    if (state.isGameOver || state.countChances <= 0) return;
+    state.roundToken += 1;
+    state.sequence = [randomCell()];
+    state.userInput = [];
+    showSequence();
+}
+
+// ─── סיבוב הצלחה (מוסיף תא) ─────────────────────────────
+function nextRound() {
+    if (state.isGameOver || state.countChances <= 0) return;
+    state.roundToken += 1;
+    state.sequence.push(randomCell());
+    state.userInput = [];
+    showSequence();
+}
+
+function randomCell() {
+    return Math.floor(Math.random() * 9) + 1;
+}
+
+// ─── לחיצת שחקן ──────────────────────────────────────────
+export function handleClick(cellId) {
+    // מתעלמים מלחיצות כשהמחשב מציג / מושהה / נגמר
+    if (state.isGameOver || state.isPaused || state.isShowingSeq) return;
+
+    const expected = state.sequence[state.userInput.length];
+
+    // אפקט ויזואלי + צליל
+    playClickEffect(`cell-${cellId}`, true);
+    playNote(notes[cellId - 1]);
+
+    // ─ לחיצה שגויה ─
+    if (cellId !== expected) {
+        loseChance("טעות! ❌ ירד ניסיון");
+        return;
+    }
+
+    // ─ לחיצה נכונה ─
+    state.userInput.push(cellId);
+
+    // עוד לא סיים את כל הרצף — מאפס טיימר לזמן מלא
+    if (state.userInput.length < state.sequence.length) {
+        stopTimer();
+        const t = turnTime();
+        const token = state.roundToken;
+        Timer(t, () => {
+            if (token !== state.roundToken || state.isShowingSeq) return;
+            onTimeout();
+        });
+        return;
+    }
+
+    // ─ הצליח להשלים את כל הרצף ─
+    stopTimer();
+    state.score += 1;
+    state.stagePoints += 1;
+    updateScore();
+    showMessage("נכון! ✅");
+
+    if (state.stagePoints >= MAX_STAGE_POINTS) {
+        state.stage += 1;
+        state.stagePoints = 0;
+        updateStage();
+     SEQ_SPEED -=100 
+        showMessage("עלית שלב! 🎉");
+    }
+
+    later(() => nextRound(), 1200);
+}
+
+// ─── התחלת משחק ──────────────────────────────────────────
 export function startGame() {
-    Object.assign(gameStart, {
+    stopTimer();
+    cancelAll();
+    clearBoard();
+
+    Object.assign(state, {
         sequence: [],
         userInput: [],
-        countChances: baseChances,
+        countChances: BASE_CHANCES,
         stage: 1,
         stagePoints: 0,
         score: 0,
-        timer: baseTimer,
-        isPlaying: false
+        isShowingSeq: false,
+        isPaused: false,
+        isGameOver: false,
+        roundToken: 0,
+        pendingIds: []
     });
 
     updateStage();
     updateScore();
     updateChances();
-    showMessage("Get Ready...");
 
-    setTimeout(() => {
-        randomCell();
-        playSequence(() => Timer(gameStart.timer, handleTimeout));
-    }, 1000);
+    const name = localStorage.getItem("currentPlayerName") || "אנונימי";
+    showMessage(`בהצלחה, ${name}! 🎮`);
+
+    later(() => freshRound(), 1000);
 }
 
-// --- מאזינים ---
-document.addEventListener("keydown", (e) => {
-    const key = Number(e.key);
-    if (key >= 1 && key <= 9) {
-        const cell = document.querySelector(`[data-id="${key}"]`);
-        if (cell) {
-            cell.classList.add("pressed");
-            setTimeout(() => { cell.classList.remove("pressed"); }, 150);
-            handleClick(key);
-        }
-    }
-});
+// ─── כפתור השהייה ────────────────────────────────────────
+const pauseBtn = document.getElementById("playing");
+if (pauseBtn) {
+    pauseBtn.addEventListener("click", () => {
+        if (state.isGameOver) return;
 
-function stopp() {
-    const playing = document.getElementById("playing");
-    if (!playing) return;
-    playing.addEventListener("click", () => {
-        gameStart.isPlaying = !gameStart.isPlaying;
+        state.isPaused = !state.isPaused;
+        pauseBtn.textContent = state.isPaused ? "▶️" : "⏸️";
+
+        if (state.isPaused) {
+            stopTimer();
+            cancelAll();
+            showMessage("מושהה ⏸️");
+        } else {
+            showMessage("ממשיכים ▶️");
+            showSequence();   // מנגן את הרצף מחדש מההתחלה
+        }
     });
 }
 
-stopp();
+// ─── קלט מקלדת ───────────────────────────────────────────
+document.addEventListener("keydown", e => {
+    const k = Number(e.key);
+    if (k >= 1 && k <= 9) handleClick(k);
+});

@@ -1,9 +1,15 @@
 // sound.js
 
-// 1. יצירת האובייקט המרכזי שמנהל את כל האודיו בדפדפן )
-const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+// AudioContext נוצר רק בפעם הראשונה שמנגנים — דפדפנים חוסמים יצירה אוטומטית בטעינה
+let audioCtx = null;
 
-// 2. מערך תדרים (בהרץ) המייצג סולם מוזיקלי עבור 9 הכפתורים בלוח
+export function getAudioCtx() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    return audioCtx;
+}
+
 export const notes = [
     261.63, // דו (C4)
     293.66, // רה (D4)
@@ -16,40 +22,24 @@ export const notes = [
     587.33  // רה גבוה (D5)
 ];
 
-// 3. הפונקציה המרכזית שמייצרת את הצליל
 export function playNote(frequency) {
+    const ctx = getAudioCtx();
 
-    // בדיקה: אם הדפדפן השהה את הסאונד (הגנה נגד רעש אוטומטי), אנחנו מעירים אותו
-    if (audioCtx.state === 'suspended') {
-        audioCtx.resume();
+    if (ctx.state === 'suspended') {
+        ctx.resume();
     }
 
-    // א. יצירת האוסילטור (Oscillator) - הרכיב שמייצר את גל הקול הגולמי
-    const oscillator = audioCtx.createOscillator();
+    const oscillator = ctx.createOscillator();
+    const gainNode = ctx.createGain();
 
-    // ב. יצירת ה-GainNode - הרכיב ששולט על עוצמת הקול (הווליום)
-    const gainNode = audioCtx.createGain();
-
-    // ג. הגדרת סוג הגל - 'sine' מייצר צליל נקי ורך (דומה לחליל)
     oscillator.type = 'sine';
+    oscillator.frequency.setValueAtTime(frequency, ctx.currentTime);
 
-    // ד. קביעת התדר (התו) שיתנגן לפי הפרמטר שהפונקציה קיבלה
-    oscillator.frequency.setValueAtTime(frequency, audioCtx.currentTime);
-
-    // ה. "חיווט" הרכיבים: האוסילטור מתחבר לווליום, והווליום מתחבר לרמקולים (destination)
     oscillator.connect(gainNode);
-    gainNode.connect(audioCtx.destination);
+    gainNode.connect(ctx.destination);
 
-    // ו. התחלת יצירת הצליל בזיכרון
     oscillator.start();
-
-    // ז. יצירת "מעטפת צליל" (Envelope) - כדי שהצליל לא ייקטע בפתאומיות:
-    // 1. קביעת עוצמה מקסימלית (1) בזמן הנוכחי
-    gainNode.gain.setValueAtTime(1, audioCtx.currentTime);
-
-    // 2. דעיכה הדרגתית של העוצמה עד לאפס תוך 0.5 שניות (יוצר אפקט של פריטה)
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 0.5);
-
-    // ח. הפסקת פעולת האוסילטור בדיוק כשהדעיכה מסתיימת כדי לחסוך במשאבי מעבד
-    oscillator.stop(audioCtx.currentTime + 0.5);
+    gainNode.gain.setValueAtTime(1, ctx.currentTime);
+    gainNode.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + 0.5);
+    oscillator.stop(ctx.currentTime + 0.5);
 }

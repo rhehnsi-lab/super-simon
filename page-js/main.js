@@ -1,48 +1,62 @@
-import { createBoard, boardGame } from "./Board.js";
+import { createBoard } from "./Board.js";
 import { handleClick, startGame } from "./logicGame.js";
 
-
-createBoard(handleClick);
+const boardContainer = document.getElementById("board");
+if (boardContainer) {
+    createBoard(handleClick);
+}
 
 const btn = document.getElementById("enter-btn");
-const modal = document.getElementById("modal");
 const playerName = document.getElementById("player-name");
 const homeButton = document.getElementById("home");
 const homeScreen = document.getElementById("home-screen");
 const backToGame = document.getElementById("back-to-game");
-const playerDisplay = document.getElementById("player-display");
+const gamePage = document.querySelector(".game-page");
 const gameLevel = document.getElementById("level");
 const gameScore = document.getElementById("score");
 const recordLevel = document.querySelector(".record-level");
 const recordScore = document.querySelector(".record-score");
+const playerDisplay = document.getElementById("player-display");
+const playerNameLabel = document.getElementById("player-name-label");
 
-btn.addEventListener("click", () => {
-    const name = playerName.value.trim();
-    if (!name) {
-        playerName.focus();
-        playerName.reportValidity();
-        return;
-    }
+if (btn) {
+    btn.addEventListener("click", () => {
+        const name = playerName ? playerName.value.trim() : "";
 
-    if (playerDisplay) {
-        playerDisplay.innerText = name;
-    }
-    if (modal) {
-        modal.style.display = "none";
-    }
+        if (!name && playerName) {
+            playerName.focus();
+            playerName.reportValidity();
+            return;
+        }
+
+        localStorage.setItem("currentPlayerName", name);
+        window.location.href = "game.html";
+    });
+}
+
+if (boardContainer) {
+    const savedName = localStorage.getItem("currentPlayerName") || "אנונימי";
+    if (playerDisplay) playerDisplay.innerText = savedName;
+    if (playerNameLabel) playerNameLabel.innerText = savedName;
     startGame();
-});
+}
 
 if (homeButton) {
     homeButton.addEventListener("click", () => {
-        if (gameLevel && recordLevel) {
+        if (recordLevel && gameLevel) {
             recordLevel.innerText = gameLevel.innerText || "0";
         }
-        if (gameScore && recordScore) {
+
+        if (recordScore && gameScore) {
             recordScore.innerText = gameScore.innerText || "0";
         }
+
         if (homeScreen) {
             homeScreen.style.display = "flex";
+        }
+
+        if (gamePage) {
+            gamePage.style.display = "none";
         }
     });
 }
@@ -52,7 +66,9 @@ if (backToGame) {
         if (homeScreen) {
             homeScreen.style.display = "none";
         }
+
+        if (gamePage) {
+            gamePage.style.display = "flex";
+        }
     });
 }
-
-

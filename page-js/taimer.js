@@ -1,16 +1,35 @@
-let interval;
-export const Timer = (time, onExpire) => {
-    clearInterval(interval);
-    let currentTime = time;
-    const mins = document.getElementById("taimer");
-    if (mins) mins.innerText = currentTime;
+// timer.js — קובץ יחיד לטיימר, אין כפילות
+let intervalId = null;
 
-    interval = setInterval(() => {
-        currentTime--;
-        if (mins) mins.innerText = currentTime;
-        if (currentTime <= 0) {
-            clearInterval(interval);
-            if (typeof onExpire === "function") onExpire();
+export function stopTimer() {
+    if (intervalId !== null) {
+        clearInterval(intervalId);
+        intervalId = null;
+    }
+}
+
+export function Timer(seconds, onExpire) {
+    stopTimer(); // תמיד עוצר טיימר קודם לפני שמתחיל חדש
+
+    let timeLeft = Math.max(0, Number(seconds) || 0);
+    const taimerElement = document.getElementById("taimer");
+
+    if (taimerElement) {
+        taimerElement.innerText = String(timeLeft);
+    }
+
+    intervalId = setInterval(() => {
+        timeLeft -= 1;
+
+        if (taimerElement) {
+            taimerElement.innerText = String(Math.max(0, timeLeft));
+        }
+
+        if (taimeLeft <= 0) {
+            stopTimer();
+            if (typeof onExpire === "function") {
+                onExpire();
+            }
         }
     }, 1000);
-};
+}

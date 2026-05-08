@@ -1,28 +1,41 @@
-const size_b = 9;
-const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "cyan", "lime"];
- export const boardGame ={
-    id: 0,
-    color: "",
-    isPressed: false
-}
+export function createBoard(onCellClick) {
+    const board = document.getElementById("board");
+    if (!board) {
+        console.error("Board element not found!");
+        return;
+    }
 
-/* הפונקציה createBoard אחראית על יצירה דינמית של לוח משחק (או ממשק) בתוך דף ה-HTML. היא עוברת בלולאה על מספר מסוים של תאים, יוצרת אותם, מעצבת אותם ומוסיפה להם אינטראקטיביות. */
-export function createBoard(onClick) {
-    for (let i = 0; i < size_b; i++) {
-        boardGame.id = i + 1;
-        boardGame.color = colors[i];
+    // מסיר תאים ישנים אחד אחד — ללא innerHTML
+    while (board.firstChild) {
+        board.removeChild(board.firstChild);
+    }
+
+    for (let i = 1; i <= 9; i++) {
         const cell = document.createElement("div");
-        cell.dataset.id = i + 1;
-        cell.className = "cell ";
-        document.getElementById("board").appendChild(cell);
-        console.log(`create data ${i + 1} and color ${colors[i]}`);
+        cell.className = "cell";
+        cell.id = `cell-${i}`;
+        cell.dataset.id = i;
+        cell.setAttribute("aria-label", `תא ${i}`);
+
+        // מספר מקלדת בפינה
+        const keyHint = document.createElement("span");
+        keyHint.className = "cell-key";
+        keyHint.textContent = i;
+        cell.appendChild(keyHint);
+
         cell.addEventListener("click", () => {
-            cell.classList.add("pressed");
-            setTimeout(() => {
-                cell.classList.remove("pressed");
-            }, 150);
-            // קריאה לפונקציית onClick עם מזהה התא שנלחץ (i + 1)
-            onClick(i + 1);
+            if (typeof onCellClick === "function") {
+                onCellClick(i);
+            }
         });
+
+        board.appendChild(cell);
     }
 }
+
+export const boardGame = {
+    cells: [],
+    init() {
+        this.cells = document.querySelectorAll(".cell");
+    }
+};

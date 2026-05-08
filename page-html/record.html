@@ -1,28 +1,40 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>record</title>
-    <a href="index.html">עמוד</a>
+<html lang="he" dir="rtl">
 
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>טבלת שיאים | Super Simon</title>
+    <link rel="stylesheet" href="../page-css/style.css" />
+    <link rel="stylesheet" href="../page-css/record.css" />
 </head>
-<body>
-    <div class="record-board">
-        <div class="record-row header">
-            <span class="record-key">מדד</span>
-            <span class="record-value">ערך</span>
-        </div>
-        <div class="record-row">
-            <span class="record-key">שלב</span>
-            <span class="record-value record-level">0</span>
-        </div>
-        <div class="record-row">
-            <span class="record-key">קודים</span>
-            <span class="record-value record-score">0</span>
-        </div>
-    </div>
-    </div>
-    </div>
+
+<body class="record-page">
+    <main class="record-shell">
+        <section class="record-panel">
+
+            <div class="record-topbar">
+                <a class="back-btn" href="index.html">חזרה לבית</a>
+                <h1>טבלת שיאים</h1>
+            </div>
+
+            <div class="record-summary">
+                <div class="record-summary-card">
+                    <span>שיא שלב</span>
+                    <strong class="record-level">0</strong>
+                </div>
+                <div class="record-summary-card">
+                    <span>שיא קודים</span>
+                    <strong class="record-score">0</strong>
+                </div>
+            </div>
+
+            <ul class="record-list"></ul>
+
+        </section>
+    </main>
+
+    <script type="module" src="../page-js/record.js"></script>
 </body>
+
 </html>

@@ -73,6 +73,7 @@ h1 {
 }
 
 .cell {
+    position: relative;
     width: 100%;
     aspect-ratio: 1 / 1;
     border-radius: 18px;
@@ -99,6 +100,53 @@ h1 {
     transform: scale(0.92);
     filter: brightness(0.7);
 }
+
+/* Cell colors for Simon game */
+[data-id="1"] {
+    background: #ff1e1e;
+}
+
+/* Red */
+[data-id="2"] {
+    background: #ffcc00;
+}
+
+/* Yellow */
+[data-id="3"] {
+    background: #00cc44;
+}
+
+/* Green */
+[data-id="4"] {
+    background: #1e90ff;
+}
+
+/* Blue */
+[data-id="5"] {
+    background: #ff6600;
+}
+
+/* Orange */
+[data-id="6"] {
+    background: #9933ff;
+}
+
+/* Purple */
+[data-id="7"] {
+    background: #ff0099;
+}
+
+/* Pink */
+[data-id="8"] {
+    background: #00ffcc;
+}
+
+/* Cyan */
+[data-id="9"] {
+    background: #ffff00;
+}
+
+/* Bright Yellow */
 
 .controls {
     display: flex;
@@ -266,4 +314,16 @@ h1 {
         flex-direction: column;
         align-items: flex-start;
     }
+}
+
+.cell-key {
+    position: absolute;
+    bottom: 6px;
+    right: 8px;
+    font-size: 13px;
+    font-weight: 700;
+    color: rgba(255, 255, 255, 0.55);
+    pointer-events: none;
+    user-select: none;
+    line-height: 1;
 }
