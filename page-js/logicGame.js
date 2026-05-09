@@ -1,4 +1,4 @@
-// logicGame.js — גרסה נקייה ומתוקנת לחלוטין
+// logicGame.js — גרסה נקייה ומתוקנת
 import { updateStage, updateScore, updateChances, showMessage, setGameState, playClickEffect } from "./ui.js";
 import { saveScore } from "./record.js";
 import { Timer, stopTimer } from "./taimer.js";
@@ -7,9 +7,10 @@ import { playNote, notes } from "./sound.js";
 // ─── קבועים ───────────────────────────────────────────────
 const MAX_STAGE_POINTS = 5;
 const BASE_CHANCES = 3;
-let SEQ_SPEED = 800;   // ms בין תאים בהצגת הרצף
-const CELL_LIT_MS = 400;   // כמה זמן תא "דולק"
-const MIN_TURN_TIME = 8;     // שניות מינימום לתור שחקן
+const SPEED_BY_STAGE = [800, 700, 600, 500, 400]; // אינדקס 0 = שלב 1
+let SEQ_SPEED = 800;          // ← let כדי שניתן לשנות בזמן ריצה
+const CELL_LIT_MS = 400;
+const MIN_TURN_TIME = 8;
 const MAX_TURN_TIME = 20;
 
 // ─── מצב המשחק ────────────────────────────────────────────
@@ -20,11 +21,11 @@ const state = {
     stage: 1,
     stagePoints: 0,
     score: 0,
-    isShowingSeq: false,   // המחשב מציג רצף כרגע
+    isShowingSeq: false,
     isPaused: false,
     isGameOver: false,
-    roundToken: 0,       // מספר סיבוב — מונע פעולות מסיבובים ישנים
-    pendingIds: []       // setTimeout-ים שניתן לבטל
+    roundToken: 0,
+    pendingIds: []
 };
 
 setGameState(state);
@@ -73,16 +74,15 @@ function showSequence() {
 
     showMessage("צפה ברצף... 👀");
 
-    // תא ראשון מתחיל אחרי השהייה קטנה — לא ב-0ms
     state.sequence.forEach((id, i) => {
         later(() => {
             if (token !== state.roundToken || state.isGameOver) return;
             lightCell(id);
-        }, 500 + i * SEQ_SPEED);
+        }, 500 + i * SEQ_SPEED);   // ← SEQ_SPEED תקין
     });
 
     // אחרי כל הרצף — עבור לתור שחקן
-    const afterSeq = 500 + state.sequence.length * SEQ_SPEED + 400;
+    const afterSeq = 500 + state.sequence.length * SEQ_SPEED + 400;  // ← תקין
     later(() => {
         if (token !== state.roundToken || state.isGameOver) return;
         beginPlayerTurn(token);
@@ -129,13 +129,12 @@ function loseChance(msg) {
         return;
     }
 
-    // רצף חדש קצר אחרי הפסד
     later(() => freshRound(), 1800);
 }
 
 // ─── סיום משחק ───────────────────────────────────────────
 function endGame() {
-    if (state.isGameOver||state.stage===5) return;
+    if (state.isGameOver) return;
     state.isGameOver = true;
 
     stopTimer();
@@ -172,25 +171,20 @@ function randomCell() {
 
 // ─── לחיצת שחקן ──────────────────────────────────────────
 export function handleClick(cellId) {
-    // מתעלמים מלחיצות כשהמחשב מציג / מושהה / נגמר
     if (state.isGameOver || state.isPaused || state.isShowingSeq) return;
 
     const expected = state.sequence[state.userInput.length];
 
-    // אפקט ויזואלי + צליל
     playClickEffect(`cell-${cellId}`, true);
     playNote(notes[cellId - 1]);
 
-    // ─ לחיצה שגויה ─
     if (cellId !== expected) {
         loseChance("טעות! ❌ ירד ניסיון");
         return;
     }
 
-    // ─ לחיצה נכונה ─
     state.userInput.push(cellId);
 
-    // עוד לא סיים את כל הרצף — מאפס טיימר לזמן מלא
     if (state.userInput.length < state.sequence.length) {
         stopTimer();
         const t = turnTime();
@@ -202,7 +196,7 @@ export function handleClick(cellId) {
         return;
     }
 
-    // ─ הצליח להשלים את כל הרצף ─
+    // הצליח להשלים את כל הרצף
     stopTimer();
     state.score += 1;
     state.stagePoints += 1;
@@ -212,8 +206,8 @@ export function handleClick(cellId) {
     if (state.stagePoints >= MAX_STAGE_POINTS) {
         state.stage += 1;
         state.stagePoints = 0;
+        SEQ_SPEED = Math.max(300, SEQ_SPEED - 100); // ← מואץ, לא פחות מ-300ms
         updateStage();
-     SEQ_SPEED -=100 
         showMessage("עלית שלב! 🎉");
     }
 
@@ -226,11 +220,14 @@ export function startGame() {
     cancelAll();
     clearBoard();
 
+    const savedLevel = parseInt(localStorage.getItem("startLevel")) || 1;
+    SEQ_SPEED = SPEED_BY_STAGE[savedLevel - 1] ?? 800;  // ← אינדקס תקין
+
     Object.assign(state, {
         sequence: [],
         userInput: [],
         countChances: BASE_CHANCES,
-        stage: 1,
+        stage: savedLevel,
         stagePoints: 0,
         score: 0,
         isShowingSeq: false,
@@ -265,7 +262,7 @@ if (pauseBtn) {
             showMessage("מושהה ⏸️");
         } else {
             showMessage("ממשיכים ▶️");
-            showSequence();   // מנגן את הרצף מחדש מההתחלה
+            showSequence();
         }
     });
 }

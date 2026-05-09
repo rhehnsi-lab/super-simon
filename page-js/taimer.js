@@ -1,4 +1,4 @@
-// timer.js — קובץ יחיד לטיימר, אין כפילות
+
 let intervalId = null;
 
 export function stopTimer() {
@@ -25,7 +25,7 @@ export function Timer(seconds, onExpire) {
             taimerElement.innerText = String(Math.max(0, timeLeft));
         }
 
-        if (taimeLeft <= 0) {
+        if (timeLeft <= 0) {
             stopTimer();
             if (typeof onExpire === "function") {
                 onExpire();

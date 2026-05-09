@@ -10,10 +10,7 @@ export function createBoard(onCellClick) {
         return;
     }
 
-    // Clear any existing cells
-    board.innerHTML = "";
-
-    // Create 9 cells (3x3 grid)
+    
     for (let i = 1; i <= 9; i++) {
         const cell = document.createElement("div");
         cell.className = "cell";

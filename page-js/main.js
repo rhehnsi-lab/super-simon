@@ -1,10 +1,5 @@
-import { createBoard } from "./Board.js";
-import { handleClick, startGame } from "./logicGame.js";
-
-const boardContainer = document.getElementById("board");
-if (boardContainer) {
-    createBoard(handleClick);
-}
+import { createBoard } from "../page-js/Board.js";
+import { handleClick, startGame } from "../page-js/logicGame.js";
 
 const btn = document.getElementById("enter-btn");
 const playerName = document.getElementById("player-name");
@@ -18,57 +13,55 @@ const recordLevel = document.querySelector(".record-level");
 const recordScore = document.querySelector(".record-score");
 const playerDisplay = document.getElementById("player-display");
 const playerNameLabel = document.getElementById("player-name-label");
+const boardContainer = document.getElementById("board");
 
+// ─── דף index.html — כניסה למשחק ────────────────────────
 if (btn) {
     btn.addEventListener("click", () => {
         const name = playerName ? playerName.value.trim() : "";
-
         if (!name && playerName) {
             playerName.focus();
             playerName.reportValidity();
             return;
         }
 
+        const levelSelect = document.getElementById("start-level");
+        const chosenLevel = levelSelect ? parseInt(levelSelect.value) : 1;
+
         localStorage.setItem("currentPlayerName", name);
+        localStorage.setItem("startLevel", chosenLevel);
         window.location.href = "game.html";
     });
 }
 
+// ─── דף game.html — אתחול לוח ומשחק ─────────────────────
 if (boardContainer) {
     const savedName = localStorage.getItem("currentPlayerName") || "אנונימי";
     if (playerDisplay) playerDisplay.innerText = savedName;
     if (playerNameLabel) playerNameLabel.innerText = savedName;
+
+    createBoard(handleClick); // ← חייב לפני startGame!
     startGame();
 }
 
+// ─── כפתור בית ───────────────────────────────────────────
 if (homeButton) {
     homeButton.addEventListener("click", () => {
         if (recordLevel && gameLevel) {
             recordLevel.innerText = gameLevel.innerText || "0";
         }
-
         if (recordScore && gameScore) {
             recordScore.innerText = gameScore.innerText || "0";
         }
-
-        if (homeScreen) {
-            homeScreen.style.display = "flex";
-        }
-
-        if (gamePage) {
-            gamePage.style.display = "none";
-        }
+        if (homeScreen) homeScreen.style.display = "flex";
+        if (gamePage) gamePage.style.display = "none";
     });
 }
 
+// ─── חזרה למשחק ──────────────────────────────────────────
 if (backToGame) {
     backToGame.addEventListener("click", () => {
-        if (homeScreen) {
-            homeScreen.style.display = "none";
-        }
-
-        if (gamePage) {
-            gamePage.style.display = "flex";
-        }
+        if (homeScreen) homeScreen.style.display = "none";
+        if (gamePage) gamePage.style.display = "flex";
     });
 }

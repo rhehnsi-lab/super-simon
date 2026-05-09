@@ -3,11 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<a href="index.html">עמוד</a>
-  
-    <title>game</title>
+    <link rel="stylesheet" href="../page-css/modal.css">
 
+    <title>game</title>
+    <link rel="stylesheet" href="../page-css/style.css">
+  
 </head>
+
+
+
 
 <body>
     <div id="home-screen" class="home-screen" style="display: none;">
@@ -21,6 +25,7 @@
             </div>
 
             <p class="home-summary">כאן ניתן לראות את ההתקדמות שלך בזמן המשחק.</p>
+            
 
             <div class="home-stats">
                 <div class="home-stat-box">
@@ -42,16 +47,15 @@
     <div class="game-page">
         <div class="game-card">
             <h1>SUPER SIMON</h1>
-    
+
             <div class="stats">
                 <div class="stat">⏱️ <span id="taimer"></span><small>זמן</small></div>
                 <div class="stat">🧠 <span id="level"></span><small>שלב</small></div>
-                <div class="stat">⭐ <span id="score"></span><small>קודים</small></div>
+                <div class="stat">⭐ <span id="score"></span><small>נקודות</small></div>
                 <div class="stat">🔁 <span id="ch"></span><small>ניסיונות</small></div>
             </div>
 
-            <div class="message"></div>
-    
+            <div class="message"></div>  
             <div id="board"></div>
 
             <div class="controls">
@@ -61,7 +65,7 @@
             </div>
         </div>
     </div>
-
+   <script type="module" src="../page-js/main.js"></script>
 </body>
 
 </html>
