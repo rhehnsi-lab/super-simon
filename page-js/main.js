@@ -30,7 +30,7 @@ if (btn) {
 
         localStorage.setItem("currentPlayerName", name);
         localStorage.setItem("startLevel", chosenLevel);
-        window.location.href = "game.html";
+        window.location.href = "./page-html/game.html";
     });
 }
 

@@ -1,16 +1,29 @@
-const sizeoard = 9;
-//Q:•	חובה לתעד את כל קבצי ה-JS באמצעות JSDoc.
-//A: התיעוד ב-JSDoc מתווסף כתגובות מעל הפונקציות והאובייקטים. הנה דוגמה כיצד ניתן לתעד את פונקציית createBoard באמצעות JSDoc:
-//A:**
+/**
+ * @fileoverview מודול יצירת לוח המשחק — בונה את תשעת התאים ומנהל את אירועי הלחיצה עליהם.
+ * @module Board
+ */
 
+/** @constant {number} sizeBoard - מספר התאים בלוח המשחק */
+const sizeoard = 9;
+
+/**
+ * יוצר את לוח המשחק ומוסיף תשעה תאים לאלמנט ה-HTML עם id="board".
+ * לכל תא מוסיפה מאזין לחיצה שמפעיל את ה-callback שהועבר.
+ *
+ * @param {function(number): void} onCellClick - פונקציית callback שתופעל עם מספר התא שנלחץ (1–9).
+ * @returns {void}
+ *
+ * @example
+ * createBoard((cellId) => {
+ *   console.log(`נלחץ תא מספר ${cellId}`);
+ * });
+ */
 export function createBoard(onCellClick) {
     const board = document.getElementById("board");
     if (!board) {
         console.error("Board element not found!");
         return;
     }
-
-
 
     for (let i = 1; i <= sizeoard; i++) {
         console.log(`Creating cell ${i}`);
@@ -35,8 +48,28 @@ export function createBoard(onCellClick) {
     }
 }
 
+/**
+ * אובייקט המנהל גישה לתאי הלוח ב-DOM.
+ *
+ * @namespace boardGame
+ * @property {NodeList} cells - רשימת כל אלמנטי התא בלוח.
+ */
 export const boardGame = {
+    /** @type {NodeList} */
     cells: [],
+
+    /**
+     * מאתחל את הרשימה של תאי הלוח מה-DOM.
+     * יש לקרוא לפונקציה זו לאחר ש-{@link createBoard} סיים לבנות את הלוח.
+     *
+     * @memberof boardGame
+     * @returns {void}
+     *
+     * @example
+     * createBoard(handleClick);
+     * boardGame.init();
+     * console.log(boardGame.cells.length); // 9
+     */
     init() {
         this.cells = document.querySelectorAll(".cell");
     }
